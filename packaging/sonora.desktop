@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Sonora
+GenericName=Music Player
+Comment=Light music player and sound library
+Exec=sonora
+Icon=audio-headphones
+Terminal=false
+Categories=AudioVideo;Audio;Player;
+Keywords=music;soundboard;playlist;audio;
+StartupNotify=true
