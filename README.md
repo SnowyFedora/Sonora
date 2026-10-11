@@ -1,35 +1,53 @@
 # Sonora
 
-Light Qt6/QML music player and sound library with playlists, Material You theme, and system hotkeys.
+Лёгкий музыкальный плеер и библиотека звуков на **Qt 6 / QML** с оформлением Material You.
 
-## Features
+## Возможности
 
-- Audio library (mp3, flac, m4a, opus, wav, and more)
-- Playlists (create, delete, add tracks)
-- Play modes: replace / overlay / queue
-- Dynamic Color (system accent or from image)
-- Native folder/file dialogs (Dolphin / Explorer)
-- Drag & drop files and folders
+- **Библиотека** — импорт папок и отдельных файлов (mp3, flac, m4a, opus, wav и др.)
+- **Плеер** — нижняя панель и **полноэкранный режим** (обложка, название, prev / play / next, прогресс, громкость)
+- **Плейлисты** — создание, удаление, добавление треков
+- **Избранное** и **Недавние**
+- **Режимы воспроизведения** — заменять, накладывать, очередь
+- **Dynamic Color** — цвет акцента из системы или из изображения
+- Нативные диалоги выбора файлов (Dolphin / системный проводник)
+- Drag & drop файлов и папок
 
-## Build and install
+## Скриншоты
+
+Интерфейс Sonora: библиотека, плейлисты, избранное, недавние, настройки и полноэкранный плеер.
+
+| Раздел | Описание |
+|--------|----------|
+| **Звуки** | Список треков, поиск, фильтры, режимы воспроизведения |
+| **Плеер** | Обложка, название, prev / play / next, прогресс, громкость |
+| **Плейлисты** | Свои подборки треков |
+| **Избранное** | Быстрый доступ к любимым |
+| **Недавние** | Что слушали в последний раз |
+| **Настройки** | Тема, цвет акцента, громкость |
+
+## Установка
 
 ```bash
 ./install.sh
 ```
 
-Installs to `~/.local/bin/sonora` and adds a desktop menu entry.
+Скрипт соберёт проект (CMake + Ninja) и поставит в `~/.local/bin/sonora`.
 
-Dependencies: Qt 6.6+ (Core, Gui, Widgets, Qml, Quick, Multimedia), CMake, Ninja, g++.
+### Зависимости
+
+- Qt 6.6+ (Core, Gui, Widgets, Qml, Quick, Multimedia)
+- CMake, Ninja, g++
 
 ```bash
-# Arch
+# Arch Linux
 sudo pacman -S qt6-base qt6-declarative qt6-multimedia cmake ninja gcc
 
-# Ubuntu
+# Ubuntu / Debian
 sudo apt install qt6-base-dev qt6-declarative-dev qt6-multimedia-dev cmake ninja-build g++
 ```
 
-Manual build:
+### Ручная сборка
 
 ```bash
 cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -37,10 +55,31 @@ cmake --build build
 ./build/Sonora
 ```
 
-## Structure
+## Запуск
 
-- `qml/` — UI (Material 3)
-- `src/library/` — library, playlists, filters
-- `src/audio/` — playback (QMediaPlayer)
-- `src/theme/` — Dynamic Color (OKLCH)
-- `src/hotkeys/` — global hotkeys (Windows)
+```bash
+sonora
+# или
+~/.local/bin/sonora
+```
+
+## Как пользоваться
+
+1. **Добавить музыку** — кнопки папки / ноты слева или перетащи файлы в окно
+2. **Слушать** — клик по карточке трека
+3. **Полный плеер** — клик по названию в нижней панели или кнопка разворота
+4. **Плейлист** — раздел «Плейлисты» → создать → на карточке трека иконка плейлиста
+
+## Структура проекта
+
+```
+qml/          — интерфейс (Material 3)
+src/library/  — библиотека, плейлисты, фильтры
+src/audio/    — воспроизведение
+src/theme/    — Dynamic Color
+src/app/      — контроллер приложения
+```
+
+## Лицензия
+
+Проект открытый. Делай с ним что хочешь.
