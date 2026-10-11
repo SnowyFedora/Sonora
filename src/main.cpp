@@ -3,10 +3,12 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QFileInfo>
 #include <QQmlApplicationEngine>
 #include <QQuickStyle>
 #include <QtQml>
 #include <QDebug>
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
@@ -36,8 +38,25 @@ int main(int argc, char *argv[])
     engine.loadFromModule("Sonora", "Main");
 
     if (engine.rootObjects().isEmpty()) {
-        qCritical("Sonora: failed to load QML module Sonora/Main.");
+        qCritical("Sonora: не удалось загрузить QML (модуль Sonora/Main). "
+                  "Проверьте установку: share/sonora/qml рядом с бинарником.");
         return 1;
+    }
+
+    // Аргументы: sonora file1.mp3 file2.flac ... (от «Открыть с помощью» / %F)
+    QStringList toOpen;
+    const QStringList args = app.arguments();
+    for (int i = 1; i < args.size(); ++i) {
+        const QString &a = args.at(i);
+        if (a.startsWith(QLatin1Char('-')))
+            continue; // флаги Qt / наши
+        toOpen.append(a);
+    }
+    if (!toOpen.isEmpty()) {
+        // После загрузки QML, чтобы тосты/UI уже были
+        QTimer::singleShot(0, &controller, [&controller, toOpen] {
+            controller.openPaths(toOpen);
+        });
     }
 
     return app.exec();

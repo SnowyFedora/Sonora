@@ -8,6 +8,7 @@ set(CMAKE_AUTOMOC ON)
 find_package(Qt6 6.6 REQUIRED COMPONENTS Core Gui Widgets Qml Quick QuickControls2 Multimedia)
 qt_standard_project_setup(REQUIRES 6.6)
 
+# Каталог QML-модуля «Sonora» иначе конфликтует с исполняемым файлом Sonora в build/
 if(QT_KNOWN_POLICY_QTP0004)
     qt_policy(SET QTP0004 NEW)
 endif()
@@ -24,6 +25,7 @@ qt_add_executable(Sonora WIN32 MACOSX_BUNDLE
     src/hotkeys/HotkeyManager.h      src/hotkeys/HotkeyManager.cpp
 )
 
+# Синглтоны QML должны быть помечены ДО qt_add_qml_module
 set_source_files_properties(qml/Theme.qml qml/Icons.qml
     PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
 
@@ -50,8 +52,11 @@ qt_add_qml_module(Sonora
         qml/SoundCard.qml
         qml/LibraryPage.qml
         qml/PlaylistsPage.qml
+        qml/PlayerPage.qml
         qml/SettingsPage.qml
 )
+
+
 
 target_include_directories(Sonora PRIVATE src)
 
@@ -66,6 +71,7 @@ endif()
 install(TARGETS Sonora BUNDLE DESTINATION . RUNTIME DESTINATION bin)
 install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/packaging/sonora.desktop
         DESTINATION share/applications)
+# QML-модуль для runtime (loadFromModule ищет на диске при установке вне build/)
 install(DIRECTORY ${CMAKE_BINARY_DIR}/qmlmodule/Sonora
         DESTINATION share/sonora/qml
         PATTERN "*.qmltypes" EXCLUDE)

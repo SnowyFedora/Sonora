@@ -2,10 +2,11 @@
 Type=Application
 Name=Sonora
 GenericName=Music Player
-Comment=Light music player and sound library
-Exec=sonora
+Comment=Лёгкий плеер и библиотека звуков
+Exec=sonora %F
 Icon=audio-headphones
 Terminal=false
 Categories=AudioVideo;Audio;Player;
-Keywords=music;soundboard;playlist;audio;
+Keywords=music;soundboard;playlist;audio;плеер;музыка;
 StartupNotify=true
+MimeType=audio/mpeg;audio/mp3;audio/x-mp3;audio/flac;audio/x-flac;audio/ogg;audio/x-vorbis+ogg;audio/opus;audio/aac;audio/mp4;audio/x-m4a;audio/wav;audio/x-wav;audio/x-aiff;audio/aiff;audio/x-ms-wma;audio/webm;inode/directory;

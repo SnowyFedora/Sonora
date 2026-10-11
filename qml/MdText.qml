@@ -1,6 +1,7 @@
 import QtQuick
 import Sonora
 
+// Текст с типографической шкалой Material 3.
 Text {
     id: root
     property string type: "bodyMedium"
@@ -21,6 +22,7 @@ Text {
     })
     readonly property var spec: typeScale[type] ?? typeScale.bodyMedium
 
+    // Белый на тёмном фоне, чёрный на светлом
     color: Theme.textPrimary
     font.family: Theme.fontFamily
     font.pixelSize: spec.size

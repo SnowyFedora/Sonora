@@ -2,20 +2,35 @@ import QtQuick
 import Sonora
 import Sonora.Core
 
+// Полноэкранный плеер: обложка, название, prev/play/next, прогресс, громкость
 Item {
     id: page
     signal closeRequested()
 
     readonly property bool hasTrack: App.nowPlayingId !== ""
     readonly property bool playing: App.isPlaying
-    property real progress: 0
+    property bool scrubbing: false
+    property real scrubValue: 0
+    readonly property real liveProgress: App.engine.progress
+    readonly property real displayProgress: scrubbing ? scrubValue : liveProgress
 
+    function fmtMs(ms) {
+        if (ms === undefined || ms < 0 || !isFinite(ms))
+            return "0:00"
+        var s = Math.floor(ms / 1000)
+        var m = Math.floor(s / 60)
+        s = s % 60
+        return m + ":" + (s < 10 ? "0" : "") + s
+    }
+
+    // Фон
     Rectangle {
         anchors.fill: parent
         color: Theme.surfaceContainerLow
         radius: Theme.radiusXl
     }
 
+    // Мягкий градиент акцента сверху
     Rectangle {
         anchors { top: parent.top; left: parent.left; right: parent.right }
         height: parent.height * 0.45
@@ -26,6 +41,7 @@ Item {
         }
     }
 
+    // Кнопка свернуть
     MdIconButton {
         anchors { top: parent.top; right: parent.right; topMargin: 16; rightMargin: 16 }
         icon: Icons.collapse
@@ -39,20 +55,29 @@ Item {
         width: Math.min(420, parent.width - 64)
         spacing: 28
 
+        // Обложка
         Rectangle {
             anchors.horizontalCenter: parent.horizontalCenter
             width: Math.min(280, parent.width)
             height: width
             radius: Theme.radiusLg
             color: Theme.primaryContainer
+            scale: coverPress.pressed ? 0.98 : 1
+            Behavior on scale { NumberAnimation { duration: 150 } }
+
+            // Декоративные круги
             Rectangle {
                 anchors.centerIn: parent
-                width: parent.width * 0.72; height: width; radius: width / 2
+                width: parent.width * 0.72
+                height: width
+                radius: width / 2
                 color: Qt.alpha(Theme.primary, 0.2)
             }
             Rectangle {
                 anchors.centerIn: parent
-                width: parent.width * 0.4; height: width; radius: width / 2
+                width: parent.width * 0.4
+                height: width
+                radius: width / 2
                 color: Qt.alpha(Theme.primary, 0.35)
             }
             MdIcon {
@@ -61,8 +86,24 @@ Item {
                 size: 72
                 color: Theme.textOnAccent
             }
+
+            // Буква из названия
+            MdText {
+                anchors.centerIn: parent
+                visible: page.hasTrack
+                text: page.hasTrack && App.nowPlayingTitle.length > 0
+                      ? App.nowPlayingTitle.charAt(0).toUpperCase() : ""
+                type: "displaySmall"
+                color: Theme.textOnAccent
+                opacity: 0.15
+                z: -1
+            }
+
+            HoverHandler { id: coverHover }
+            MouseArea { id: coverPress; anchors.fill: parent }
         }
 
+        // Текст
         Column {
             width: parent.width
             spacing: 6
@@ -83,55 +124,90 @@ Item {
             }
         }
 
-        Item {
+        // Прогресс + время + перемотка
+        Column {
             width: parent.width
-            height: 28
+            spacing: 6
             visible: page.hasTrack
-            Rectangle {
-                anchors.verticalCenter: parent.verticalCenter
-                width: parent.width; height: 6; radius: 3
-                color: Theme.surfaceContainerHighest
-                Rectangle {
-                    height: parent.height
-                    width: parent.width * Math.max(0, Math.min(1, page.progress))
-                    radius: 3
-                    color: Theme.primary
+
+            MdSlider {
+                width: parent.width
+                value: page.displayProgress
+                onMoved: (v) => {
+                    page.scrubbing = true
+                    page.scrubValue = v
+                    App.engine.seek(v)
+                    scrubEnd.restart()
+                }
+                // Завершить перемотку после прекращения движения ползунка.
+                Timer {
+                    id: scrubEnd
+                    interval: 400
+                    onTriggered: page.scrubbing = false
+                }
+            }
+
+            Row {
+                width: parent.width
+                MdText {
+                    text: page.fmtMs(page.scrubbing
+                        ? page.scrubValue * App.engine.durationMs
+                        : App.engine.positionMs)
+                    type: "labelMedium"
+                    color: Theme.textSecondary
+                }
+                Item { width: parent.width - 100; height: 1 }
+                MdText {
+                    text: page.fmtMs(App.engine.durationMs)
+                    type: "labelMedium"
+                    color: Theme.textSecondary
                 }
             }
         }
 
+        // Кнопки управления
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 20
+
             MdIconButton {
-                size: 56; iconSize: 28
+                size: 56
+                iconSize: 28
                 icon: Icons.skipPrevious
                 iconColor: Theme.textPrimary
                 enabled: page.hasTrack
                 opacity: enabled ? 1 : 0.35
                 onClicked: App.playPrevious()
             }
+
             Rectangle {
-                width: 72; height: 72; radius: 36
+                width: 72; height: 72
+                radius: 36
                 color: Theme.primary
                 scale: mainPress.pressed ? 0.92 : 1
+                Behavior on scale { NumberAnimation { duration: 120 } }
                 MdIcon {
                     anchors.centerIn: parent
                     path: page.playing ? Icons.stop : Icons.play
                     size: 32
                     color: Theme.textOnFilled
                 }
+                HoverHandler { cursorShape: Qt.PointingHandCursor }
                 MouseArea {
                     id: mainPress
                     anchors.fill: parent
                     onClicked: {
-                        if (page.playing) App.stopPlayback()
-                        else if (page.hasTrack) App.play(App.nowPlayingId)
+                        if (page.playing)
+                            App.stopPlayback()
+                        else if (page.hasTrack)
+                            App.play(App.nowPlayingId)
                     }
                 }
             }
+
             MdIconButton {
-                size: 56; iconSize: 28
+                size: 56
+                iconSize: 28
                 icon: Icons.skipNext
                 iconColor: Theme.textPrimary
                 enabled: page.hasTrack
@@ -140,6 +216,7 @@ Item {
             }
         }
 
+        // Громкость
         Row {
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 12
@@ -151,7 +228,9 @@ Item {
                     if (App.engine.masterVolume > 0.001) {
                         lastVol = App.engine.masterVolume
                         App.engine.masterVolume = 0
-                    } else App.engine.masterVolume = lastVol
+                    } else {
+                        App.engine.masterVolume = lastVol
+                    }
                 }
             }
             MdSlider {
@@ -163,10 +242,5 @@ Item {
         }
     }
 
-    Timer {
-        interval: 250
-        running: page.visible && page.hasTrack
-        repeat: true
-        onTriggered: page.progress = page.hasTrack ? App.engine.progressOf(App.nowPlayingId) : 0
-    }
 }
+
