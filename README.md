@@ -44,6 +44,8 @@
 ## Установка
 
 ```bash
+https://github.com/SnowyFedora/Sonora
+chmod +x install.sh
 ./install.sh
 ```
 
