@@ -40,8 +40,7 @@ int main(int argc, char *argv[])
     engine.loadFromModule("Sonora", "Main");
 
     if (engine.rootObjects().isEmpty()) {
-        qCritical("Sonora: не удалось загрузить QML (модуль Sonora/Main). "
-                  "Проверьте установку: share/sonora/qml рядом с бинарником.");
+        qCritical("Sonora: failed to load QML module Sonora/Main");
         return 1;
     }
 
