@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
 
-// Иконка из SVG-пути 24×24, масштабируется до `size`.
 Item {
     id: root
     property string path
