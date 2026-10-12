@@ -8,14 +8,16 @@
 #include <QQuickStyle>
 #include <QtQml>
 #include <QDebug>
+#include <cstdio>
 #include <QTimer>
 
 int main(int argc, char *argv[])
 {
+    fprintf(stderr, "Sonora 0.2.1 starting\n");
     QApplication app(argc, argv);
     app.setOrganizationName("Sonora");
     app.setApplicationName("Sonora");
-    app.setApplicationVersion("0.1.0");
+    app.setApplicationVersion("0.2.1");
 
     QQuickStyle::setStyle("Basic");
 
@@ -43,17 +45,15 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    // Аргументы: sonora file1.mp3 file2.flac ... (от «Открыть с помощью» / %F)
     QStringList toOpen;
     const QStringList args = app.arguments();
     for (int i = 1; i < args.size(); ++i) {
         const QString &a = args.at(i);
         if (a.startsWith(QLatin1Char('-')))
-            continue; // флаги Qt / наши
+            continue;
         toOpen.append(a);
     }
     if (!toOpen.isEmpty()) {
-        // После загрузки QML, чтобы тосты/UI уже были
         QTimer::singleShot(0, &controller, [&controller, toOpen] {
             controller.openPaths(toOpen);
         });
